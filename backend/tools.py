@@ -16,7 +16,7 @@ retriever = vector_store.as_retriever()
 @tool
 def get_kb_docs(query: str) -> list:
     """Returns knowledge base documents most similar to the search query"""
-    return retriever.get_relevant_documents(query)
+    return retriever.invoke(query)
 
 
 tools = [get_kb_docs]
