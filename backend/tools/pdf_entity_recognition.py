@@ -1,9 +1,9 @@
 import os
-import pandas as pd
 from enum import Enum
-from pydantic import BaseModel, Field
-from typing import List
-from langchain.tools import tool
+from typing import List, Literal
+
+import pandas as pd
+from langchain.prompts import ChatPromptTemplate
 from langchain_community.document_loaders import (
     AmazonTextractPDFLoader,
     PyMuPDFLoader,
@@ -11,39 +11,18 @@ from langchain_community.document_loaders import (
     PyPDFLoader,
 )
 from langchain_core.utils.json_schema import dereference_refs
-from langchain_openai import OpenAIEmbeddings
-from langchain.prompts import ChatPromptTemplate
-from langchain_postgres.vectorstores import PGVector
+from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
+
 from openai import RateLimitError
+from pydantic import BaseModel, Field
 
-
-from backend.config import COLLECTION_NAME, CONNECTION_STRING, OPENAI_EMBEDDING_MODEL
-
-########################
-#    Retriever tool    #
-########################
-vector_store = PGVector(
-    embeddings=OpenAIEmbeddings(model=OPENAI_EMBEDDING_MODEL),
-    connection=CONNECTION_STRING,
-    collection_name=COLLECTION_NAME,
-)
-retriever = vector_store.as_retriever()
-
-
-@tool
-def get_kb_docs(query: str) -> list:
-    """Returns knowledge base documents most similar to the search query"""
-    return retriever.invoke(query)
-
-
-########################
+#######################
 #  PDF processing tool #
 ########################
 
 
 def _make_extraction_prompt_template() -> ChatPromptTemplate:
-    # TODO: using examples to add a few shot examples to the prompt
     """Make a system message from instructions and examples."""
     system_message = (
         "You are a top-tier algorithm for extracting information from text. "
@@ -91,7 +70,11 @@ def _update_json_schema(
     return schema_
 
 
-def load_pdf(path: str, loader_type: str, top_k: int) -> List[str]:
+def load_pdf(
+    path: str,
+    top_k: int,
+    loader_type: str = "PyPDF",
+) -> List[str]:
     """
     Load a PDF file using the specified loader type and split it into pages.
 
@@ -157,7 +140,9 @@ def list_to_dataframe(data_list):
 
 
 def update_extraction_results(
-    extraction_results: dict, sources: list[str]
+    extraction_results: dict,
+    sources: list[str],
+    output_format: Literal["df", "json"] = "json",
 ) -> pd.DataFrame:
     # add file path source back to the extraction results
     for i, extraction_result in enumerate(extraction_results):
@@ -165,8 +150,14 @@ def update_extraction_results(
         for result in extraction_result["data"]:
             for utility in result["utilities"]:
                 utility["source"] = source
+    extraction_results_df = list_to_dataframe(extraction_results)
 
-    return list_to_dataframe(extraction_results)
+    if output_format == "df":
+        return extraction_results_df
+    elif output_format == "json":
+        return extraction_results_df.to_dict(orient="records")
+    else:
+        raise ValueError(f"Invalid output format: {output_format}")
 
 
 class UtilityTypeEnum(Enum):
@@ -216,48 +207,47 @@ class UtilityBillSchema(BaseModel):
     )
 
 
-# Create a prompt template
-prompt_template = _make_extraction_prompt_template()
+@tool
+def pdf_utility_bill_extraction() -> pd.DataFrame:
+    """
+    Run utility bill extraction on the PDF file.
+    """
+    # Create a prompt template
+    prompt_template = _make_extraction_prompt_template()
 
-# Create a structured output model
-schema = _update_json_schema(UtilityBillSchema.model_json_schema())
-extraction_model = (
-    ChatOpenAI(
-        model=os.getenv("OPENAI_CHAT_MODEL"), temperature=os.getenv("MODEL_TEMPERATURE")
+    # Create a structured output model
+    schema = _update_json_schema(UtilityBillSchema.model_json_schema())
+    extraction_model = (
+        ChatOpenAI(
+            model_name=os.getenv("OPENAI_CHAT_MODEL"),
+            temperature=os.getenv("OPENAI_CHAT_MODEL_TEMPERATURE"),
+        )
+        .with_structured_output(schema=schema, method="function_calling")
+        .with_config({"run_name": "extraction"})
+        .with_retry(
+            retry_if_exception_type=(RateLimitError,),  # Retry only on RateLimitError
+            wait_exponential_jitter=True,  # Add jitter to the exponential backoff
+            stop_after_attempt=2,
+        )
     )
-    .with_structured_output(schema=schema, method="function_calling")
-    .with_config({"run_name": "extraction"})
-    .with_retry(
-        retry_if_exception_type=(RateLimitError,),  # Retry only on RateLimitError
-        wait_exponential_jitter=True,  # Add jitter to the exponential backoff
-        stop_after_attempt=2,
+
+    # Make the runnable and run on the loaded PDF file
+    runnable = prompt_template | extraction_model
+
+    # Load the PDF files
+    loaded_docs = load_pdf_files(os.getenv("DATA_DIR"))
+
+    # Prepare the batch input
+    batch_input = [{"text": doc.page_content} for doc in loaded_docs]
+
+    # Run the extraction
+    extraction_results = runnable.batch(batch_input)
+
+    # Generate the dataframe
+    sources = [doc.metadata["source"].split("/")[-1] for doc in loaded_docs]
+    extraction_results = update_extraction_results(
+        extraction_results=extraction_results, sources=sources, output_format="json"
     )
-)
 
-# Make the runnable and run on the loaded PDF file
-runnable = prompt_template | extraction_model
-
-## Run
-# data_dir: str = "/Users/ducdo/Documents/Electricity Bills/testing"
-data_dir: str = "/Users/ducdo/Documents/Electricity Bills/from_scanbot"
-
-# Load the PDF files
-loaded_docs = load_pdf_files(data_dir, k=2)
-
-# Prepare the batch input
-batch_input = [{"text": doc.page_content} for doc in loaded_docs]
-
-# Run the extraction
-extraction_results = runnable.batch(batch_input)
-
-# Generate the dataframe
-sources = [doc.metadata["source"].split("/")[-1] for doc in loaded_docs]
-extraction_results = update_extraction_results(extraction_results, sources)
-
-# Display the results
-extraction_results
-
-########################
-#  Initialize tools    #
-########################
-tools = [get_kb_docs]
+    # Display the results
+    return extraction_results
