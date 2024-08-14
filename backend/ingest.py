@@ -7,11 +7,13 @@ from backend.config import CONNECTION_STRING, COLLECTION_NAME, OPENAI_EMBEDDING_
 
 # Load and create list of documents
 urls = [
-    "https://www.usebutton.com/",
-    "https://www.usebutton.com/for-publishers",
-    "https://www.usebutton.com/for-retailers",
-    "https://www.usebutton.com/for-creators",
-    "https://www.usebutton.com/button-marketplace",
+    "https://www.clari.com/",
+    "https://www.clari.com/why-clari/",
+    "https://www.clari.com/products/revai/",
+    "https://www.clari.com/solutions/revenue-productivity/",
+    "https://www.clari.com/solutions/revenue-execution/",
+    "https://www.clari.com/solutions/revenue-orchestration/",
+    "https://www.clari.com/revenue-cadence/",
 ]
 docs = [WebBaseLoader(url).load() for url in urls]
 docs_list = [item for sublist in docs for item in sublist]
@@ -19,7 +21,7 @@ docs_list = [item for sublist in docs for item in sublist]
 print(f"Number of embedding documents: {len(docs_list)}")
 
 text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-    chunk_size=100, chunk_overlap=50
+    chunk_size=200, chunk_overlap=50
 )
 doc_splits = text_splitter.split_documents(docs_list)
 
@@ -34,4 +36,5 @@ vector_store = PGVector.from_documents(
     documents=doc_splits,
     collection_name=COLLECTION_NAME,
     connection=CONNECTION_STRING,
+    pre_delete_collection=True,
 )
