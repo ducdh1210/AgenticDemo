@@ -11,7 +11,7 @@ from sqlmodel import Session
 
 from backend.agents import runnable
 from backend.database import get_session
-from backend.schema import Evaluation
+from backend.schema import Evaluation, EvaluationCreate, EvaluationRead
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -34,13 +34,11 @@ class InputRquest(BaseModel):
     user_input: str
 
 
-@app.post("/evaluate", response_model=Evaluation)
-def create_evaluation(session: Session = Depends(get_session)):
-    # Create a new Evaluation instance with dummy values
-    new_evaluation = Evaluation(
-        question="Sample question?", answer="Sample answer.", source="Sample source."
-    )
-
+@app.post("/evaluate", response_model=EvaluationRead)
+def create_evaluation(
+    request: EvaluationCreate, session: Session = Depends(get_session)
+):
+    new_evaluation = Evaluation(**request.model_dump())
     session.add(new_evaluation)
     session.commit()
     session.refresh(new_evaluation)
