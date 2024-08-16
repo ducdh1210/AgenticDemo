@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+load_dotenv(override=True)
 
 # Set up database connection
 USER_NAME = os.getenv("POSTGRESQL_USERNAME")
@@ -21,4 +21,5 @@ OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL")
 # Set up Langsmith variables
 # For some reason, the boolean value could not be read from the .env file
 LANGSMITH_TRACING_BOOL = True  # valid value: True or False
+print(os.environ["LANGCHAIN_TRACING_V2"])
 os.environ["LANGCHAIN_TRACING_V2"] = "true" if LANGSMITH_TRACING_BOOL else "false"

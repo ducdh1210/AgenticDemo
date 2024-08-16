@@ -19,6 +19,8 @@ langchain-postgres = "^0.0.9"
 langchain-community = "^0.2.10"
 beautifulsoup4 = "^4.12.3"
 pandas = "^2.2.2"
+sqlmodel = "^0.0.21"
+alembic = "^1.13.2"
 
 
 [tool.poetry.group.dev.dependencies]
