@@ -1,14 +1,17 @@
 import json
 import logging
-import uvicorn
 
-from fastapi import FastAPI, HTTPException
+import uvicorn
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
+from sqlmodel import Session
 
 from backend.agents import runnable
+from backend.database import get_session
+from backend.schema import Evaluation
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -29,6 +32,19 @@ app.add_middleware(
 
 class InputRquest(BaseModel):
     user_input: str
+
+
+@app.post("/evaluate", response_model=Evaluation)
+def create_evaluation(session: Session = Depends(get_session)):
+    # Create a new Evaluation instance with dummy values
+    new_evaluation = Evaluation(
+        question="Sample question?", answer="Sample answer.", source="Sample source."
+    )
+
+    session.add(new_evaluation)
+    session.commit()
+    session.refresh(new_evaluation)
+    return new_evaluation
 
 
 @app.post("/chat")
