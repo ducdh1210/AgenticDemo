@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI, Depends
 from sqlmodel import Field, Session, SQLModel, create_engine, select
-from config import CONNECTION_STRING
+from backend.config import CONNECTION_STRING
 from typing import List, Optional
 
 
