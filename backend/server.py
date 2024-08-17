@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import List
 
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
@@ -7,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from backend.agents import runnable
 from backend.database import get_session
@@ -34,7 +35,7 @@ class InputRquest(BaseModel):
     user_input: str
 
 
-@app.post("/evaluate", response_model=EvaluationRead)
+@app.post("/evaluations", response_model=EvaluationRead)
 def create_evaluation(
     request: EvaluationCreate, session: Session = Depends(get_session)
 ):
@@ -43,6 +44,12 @@ def create_evaluation(
     session.commit()
     session.refresh(new_evaluation)
     return new_evaluation
+
+
+@app.get("/evaluations", response_model=List[EvaluationRead])
+def read_evaluations(session: Session = Depends(get_session)):
+    evaluations = session.execute(select(Evaluation)).all()
+    return evaluations
 
 
 @app.post("/chat")
