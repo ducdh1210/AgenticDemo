@@ -11,7 +11,7 @@ from sqlmodel import Session
 
 from backend.agents import runnable
 from backend.database import get_session
-from backend.schema import Evaluation, EvaluationCreate, EvaluationRead
+from backend.schema.evaluation import Evaluation, EvaluationCreate, EvaluationRead
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
