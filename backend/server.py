@@ -49,6 +49,8 @@ def create_evaluation(
 @app.get("/evaluations")
 def read_evaluations(session: Session = Depends(get_session)):
     evaluations = session.execute(select(Evaluation)).all()
+    # evaluations returned as a list of tuples, each tuple is (EvalutionResult, _),
+    # so we need to extract the EvaluationResult as the first element in the tuple
     evaluations = [e[0].model_dump() for e in evaluations]
     return evaluations
 
