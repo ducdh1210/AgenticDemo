@@ -46,9 +46,10 @@ def create_evaluation(
     return new_evaluation
 
 
-@app.get("/evaluations", response_model=List[EvaluationRead])
+@app.get("/evaluations")
 def read_evaluations(session: Session = Depends(get_session)):
     evaluations = session.execute(select(Evaluation)).all()
+    evaluations = [e[0].model_dump() for e in evaluations]
     return evaluations
 
 
