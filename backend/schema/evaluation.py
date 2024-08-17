@@ -12,8 +12,11 @@ class EvaluationBase(BaseModel):
 
 
 # SQLModel for database operations
-class Evaluation(SQLModel, table=True, base=EvaluationBase):
+class Evaluation(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    question: str
+    answer: str
+    source: str
 
 
 # Pydantic model for input (request) - Creating a new evaluation
@@ -42,3 +45,22 @@ class EvaluationQuery(BaseModel):
 class PaginatedEvaluationResponse(BaseModel):
     total: int
     evaluations: List[EvaluationRead]
+
+
+if __name__ == "__main__":
+    # Database connection
+    from backend.config import CONNECTION_STRING
+    from sqlmodel import create_engine, Session
+    from backend.schema.evaluation import EvaluationCreate
+
+    engine = create_engine(CONNECTION_STRING)
+
+    # Add a new evaluation
+    evaluation = EvaluationCreate(
+        question="What is the capital of the moon?",
+        answer="The moon is not a planet",
+        source="NASA",
+    )
+    with Session(engine) as session:
+        session.add(evaluation)
+        session.commit()
