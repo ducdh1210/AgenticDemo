@@ -44,13 +44,13 @@ class PaginatedEvaluationResponse(BaseModel):
     evaluations: List[EvaluationRead]
 
 
+# note: this is NOT working yet, api is working though
 if __name__ == "__main__":
     # Database connection
     from backend.config import CONNECTION_STRING
     from sqlmodel import create_engine, Session
     from backend.schema.evaluation import EvaluationCreate
-
-    engine = create_engine(CONNECTION_STRING)
+    from backend.database import get_engine
 
     # Add a new evaluation
     evaluation = EvaluationCreate(
@@ -58,6 +58,9 @@ if __name__ == "__main__":
         answer="The moon is not a planet",
         source="NASA",
     )
-    with Session(engine) as session:
+    engine = create_engine(CONNECTION_STRING)
+    with get_engine(engine) as session:
+        evaluation = Evaluation(**evaluation.model_dump())
         session.add(evaluation)
         session.commit()
+        session.refresh(evaluation)
