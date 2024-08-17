@@ -13,6 +13,7 @@ class EvaluationBase(SQLModel):
 
 # SQLModel for database operations
 class Evaluation(EvaluationBase, table=True):
+    __table_args__ = {"extend_existing": True}
     id: Optional[int] = Field(default=None, nullable=False, primary_key=True)
 
 
@@ -48,19 +49,26 @@ class PaginatedEvaluationResponse(BaseModel):
 if __name__ == "__main__":
     # Database connection
     from backend.config import CONNECTION_STRING
-    from sqlmodel import create_engine, Session
+    from sqlmodel import create_engine, Session, select
     from backend.schema.evaluation import EvaluationCreate
-    from backend.database import get_engine
 
-    # Add a new evaluation
-    evaluation = EvaluationCreate(
-        question="What is the capital of the moon?",
-        answer="The moon is not a planet",
-        source="NASA",
-    )
     engine = create_engine(CONNECTION_STRING)
-    with get_engine(engine) as session:
-        evaluation = Evaluation(**evaluation.model_dump())
-        session.add(evaluation)
-        session.commit()
-        session.refresh(evaluation)
+    session = Session(engine)
+
+    # Fetch all evaluations
+    evaluations = session.exec(
+        select(Evaluation)
+    ).all()  # Fetch all instances of Evaluation
+    for evaluation in evaluations:
+        print(evaluation)  # Print each evaluation instance
+
+    # # Add a new evaluation
+    # evaluation = EvaluationCreate(
+    #     question="What is the capital of the moon?",
+    #     answer="The moon is not a planet",
+    #     source="NASA",
+    # )
+    # evaluation = Evaluation(**evaluation.model_dump())
+    # session.add(evaluation)
+    # session.commit()
+    # session.refresh(evaluation)
