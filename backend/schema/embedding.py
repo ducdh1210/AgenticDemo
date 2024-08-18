@@ -23,7 +23,6 @@ class LangchainPGEmbedding(SQLModel, table=True):
     )
 
 
-# Additional model for the related `LangchainPGCollection` table (if needed):
 class LangchainPGCollection(SQLModel, table=True):
     __tablename__ = "langchain_pg_collection"
 

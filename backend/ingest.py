@@ -18,6 +18,8 @@ urls = [
 docs = [WebBaseLoader(url).load() for url in urls]
 docs_list = [item for sublist in docs for item in sublist]
 
+### Generate embeddings
+
 print(f"Number of embedding documents: {len(docs_list)}")
 
 text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
@@ -27,14 +29,16 @@ doc_splits = text_splitter.split_documents(docs_list)
 
 print(f"Number of text splits: {len(doc_splits)}")
 
-# Specify embedding model
-embedding = OpenAIEmbeddings(model=OPENAI_EMBEDDING_MODEL)
+# # Specify embedding model
+# embedding = OpenAIEmbeddings(model=OPENAI_EMBEDDING_MODEL)
 
-# Add to vectorDB
-vector_store = PGVector.from_documents(
-    embedding=embedding,
-    documents=doc_splits,
-    collection_name=COLLECTION_NAME,
-    connection=CONNECTION_STRING,
-    pre_delete_collection=True,
-)
+# # Add to vectorDB
+# vector_store = PGVector.from_documents(
+#     embedding=embedding,
+#     documents=doc_splits,
+#     collection_name=COLLECTION_NAME,
+#     connection=CONNECTION_STRING,
+#     pre_delete_collection=True,
+# )
+
+### Generate evaluation data
