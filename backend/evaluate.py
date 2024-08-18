@@ -64,5 +64,3 @@ if __name__ == "__main__":
             "variant": "evaluate QA pairs for Clari model",
         },
     )
-
-    experiment_results
