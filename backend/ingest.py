@@ -41,4 +41,16 @@ print(f"Number of text splits: {len(doc_splits)}")
 #     pre_delete_collection=True,
 # )
 
+# TODO: seperate the Generate embeddings step from the evaluation step
 ### Generate evaluation data
+from backend.evaluation.runnable import create_structured_qa_chain
+
+qa_chain = create_structured_qa_chain()
+print(f"Number of documents: {len(docs_list)}")
+results = []
+for doc in docs_list:
+    result = qa_chain.invoke(doc.page_content)
+    print(result)
+    results.append(result)
+
+print(f"Number of results: {len(results)}")
