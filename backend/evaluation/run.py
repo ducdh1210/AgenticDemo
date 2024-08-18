@@ -5,6 +5,9 @@ from langsmith.evaluation import evaluate, LangChainStringEvaluator
 from langsmith.schemas import Run, Example
 from langchain_openai import ChatOpenAI
 
+# Initialize Langsmith client
+client = Client()
+
 
 # a dummy evaluator criteria for illustrative purpose
 def evaluate_length(run: Run, example: Example) -> dict:
@@ -14,9 +17,6 @@ def evaluate_length(run: Run, example: Example) -> dict:
     return {"key": "length", "score": score}
 
 
-# Initialize Langsmith client
-client = Client()
-
 # Retrieve evaluator
 evaluators = [
     LangChainStringEvaluator(
@@ -25,13 +25,15 @@ evaluators = [
             "llm": ChatOpenAI(model="gpt-4o-mini"),
         },
     ),
-    evaluate_length,
+    # evaluate_length,
 ]
 
-dataset_name = "qa_eval_clari"
+DATASET_NAME = "qa_eval_clari"
 
 
 def get_copilot_response(inputs: dict) -> dict:
+    """Retrieve the copilot agent, feed it ground-truth question,
+    and get the response from it"""
     from backend.agents import runnable
     from langchain_core.messages import HumanMessage
 
@@ -49,7 +51,7 @@ def get_copilot_response(inputs: dict) -> dict:
 # Evaluate the answers for the questions
 experiment_results = evaluate(
     get_copilot_response,
-    data=dataset_name,
+    data=DATASET_NAME,
     evaluators=evaluators,
     experiment_prefix="test-qa-eval-clari",
     metadata={
