@@ -149,6 +149,23 @@ def generate_evaluation_data(docs_list: List[Document]) -> Any:
     return dataset
 
 
+def ingest(urls: List[str]) -> None:
+    # Scrape documents
+    docs_list = scrape_documents(urls)
+
+    # Ingest documents to database
+    load_documents(session, docs_list)
+
+    # Compute embeddings associated with new document chunks
+    # and update vector store with the computed embeddings
+    _ = generate_embeddings(docs_list)
+
+    # Generate evaluation data associated with the new documents
+    _ = generate_evaluation_data(docs_list)
+
+    print(f"Ingested {len(docs_list)} documents.")
+
+
 # Example usage
 if __name__ == "__main__":
     urls = [
@@ -160,17 +177,17 @@ if __name__ == "__main__":
         "https://www.clari.com/solutions/revenue-orchestration/",
         "https://www.clari.com/revenue-cadence/",
     ]
+    ingest(urls)
 
-    # Scrape documents
-    docs_list = scrape_documents(urls)
+    # import argparse
 
-    # Ingest documents to database
-    load_documents(session, docs_list)
+    # parser = argparse.ArgumentParser(
+    #     description="Ingest documents from a list of URLs."
+    # )
+    # parser.add_argument(
+    #     "urls", metavar="URL", type=str, nargs="+", help="a list of URLs to ingest"
+    # )
 
-    # Compute embeddings associated with new document chunks
-    # and update vector store with the computed embeddings
-    vector_store = generate_embeddings(docs_list)
+    # args = parser.parse_args()
 
-    # Generate evaluation data associated with the new documents
-    dataset = generate_evaluation_data(docs_list)
-    print("Evaluation data generated and stored.")
+    # ingest(args.urls)
