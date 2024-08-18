@@ -39,7 +39,13 @@ def run_migrations_online() -> None:
             context.run_migrations()
 ```
 
-Create a new migration script
+Add this following line in `migrations/script.py.mako`
+
+```
+import sqlmodel
+```
+
+Now, create a new migration script
 
 ```
 alembic revision --autogenerate -m "<message>"

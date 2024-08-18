@@ -5,6 +5,8 @@ from sqlalchemy import pool
 from sqlmodel import SQLModel
 from alembic import context
 
+# Important: import the models here to ensure they are registered with SQLModel
+from backend.schema.document import Document
 from backend.schema.evaluation import Evaluation
 
 # this is the Alembic Config object, which provides

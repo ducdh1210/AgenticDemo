@@ -1,16 +1,24 @@
-from typing import List, Dict, Any
-from langchain_community.document_loaders import WebBaseLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
-from langchain_postgres.vectorstores import PGVector
+from typing import Any, Dict, List
+
 from langchain.docstore.document import Document
 from langchain.schema import BaseRetriever
-from backend.config import CONNECTION_STRING, COLLECTION_NAME, OPENAI_EMBEDDING_MODEL
-from backend.evaluation.chain import create_structured_qa_chain
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import WebBaseLoader
+from langchain_openai import OpenAIEmbeddings
+from langchain_postgres.vectorstores import PGVector
 from langsmith import Client
+from sqlmodel import Session, create_engine
+
+from backend.config import COLLECTION_NAME, CONNECTION_STRING, OPENAI_EMBEDDING_MODEL
+from backend.database import load_documents
+from backend.evaluation.chain import create_structured_qa_chain
+
+# Create database session
+engine = create_engine(CONNECTION_STRING)
+session = Session(engine)
 
 
-def load_documents(urls: List[str]) -> List[Document]:
+def scrape_documents(urls: List[str]) -> List[Document]:
     """
     Load documents from given URLs.
 
@@ -23,6 +31,7 @@ def load_documents(urls: List[str]) -> List[Document]:
     docs = [WebBaseLoader(url).load() for url in urls]
     docs_list = [item for sublist in docs for item in sublist]
     print(f"Number of documents: {len(docs_list)}")
+
     return docs_list
 
 
@@ -54,6 +63,7 @@ def generate_embeddings(docs_list: List[Document]) -> BaseRetriever:
     Returns:
         BaseRetriever: A vector store containing the generated embeddings.
     """
+    # Split documents into smaller chunks
     doc_splits = split_documents(docs_list)
 
     # Specify embedding model
@@ -153,13 +163,17 @@ if __name__ == "__main__":
         "https://www.clari.com/revenue-cadence/",
     ]
 
-    # Load documents once
-    docs_list = load_documents(urls)
+    # Scrape documents
+    docs_list = scrape_documents(urls)
 
-    # Generate embeddings
-    # vector_store = generate_embeddings(docs_list)
-    # print("Embeddings generated and stored in vector database.")
+    # Ingest documents to database
+    load_documents(session, docs_list)
 
-    # Generate evaluation data
+    # Compute embeddings associated with new document chunks
+    # and update vector store with the computed embeddings
+    vector_store = generate_embeddings(docs_list)
+    print("Embeddings generated and stored in vector database.")
+
+    # Generate evaluation data associated with the new documents
     dataset = generate_evaluation_data(docs_list)
     print("Evaluation data generated and stored.")
