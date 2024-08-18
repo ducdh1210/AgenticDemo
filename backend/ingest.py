@@ -81,21 +81,19 @@ def generate_embeddings(docs_list: List[Document]) -> BaseRetriever:
     return vector_store
 
 
-def generate_qa_pairs(
-    docs_list: List[Document], num_docs: int = 2
-) -> List[Dict[str, str]]:
+def generate_qa_pairs(docs_list: List[Document]) -> List[Dict[str, str]]:
     """
     Generate QA pairs from documents.
 
     Args:
         docs_list (List[Document]): A list of documents to generate QA pairs from.
-        num_docs (int, optional): Number of documents to use for QA pair generation. Defaults to 2.
 
     Returns:
         List[Dict[str, str]]: A list of dictionaries containing generated QA pairs.
     """
+    print(f"Generating QA pairs for {len(docs_list)} documents.")
     qa_chain = create_structured_qa_chain()
-    results = qa_chain.batch([doc.page_content for doc in docs_list[:num_docs]])
+    results = qa_chain.batch([doc.page_content for doc in docs_list])
     print(f"Number of QA pairs generated: {len(results)}")
     return results
 
@@ -146,8 +144,8 @@ def generate_evaluation_data(docs_list: List[Document]) -> Any:
     Returns:
         Any: The created dataset object containing the evaluation data.
     """
-    results = generate_qa_pairs(docs_list)
-    dataset = store_evaluation_data(results)
+    qa_pairs = generate_qa_pairs(docs_list)
+    dataset = store_evaluation_data(qa_pairs)
     return dataset
 
 
@@ -172,7 +170,6 @@ if __name__ == "__main__":
     # Compute embeddings associated with new document chunks
     # and update vector store with the computed embeddings
     vector_store = generate_embeddings(docs_list)
-    print("Embeddings generated and stored in vector database.")
 
     # Generate evaluation data associated with the new documents
     dataset = generate_evaluation_data(docs_list)
