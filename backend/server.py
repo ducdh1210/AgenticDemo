@@ -35,6 +35,7 @@ class InputRquest(BaseModel):
     user_input: str
 
 
+# TODO: refactor these eval endpoints to router
 @app.post("/evaluations", response_model=EvaluationRead)
 def create_evaluation(
     request: EvaluationCreate, session: Session = Depends(get_session)
@@ -55,6 +56,7 @@ def read_evaluations(session: Session = Depends(get_session)):
     return evaluations
 
 
+# TODO: refactor these chat endpoints to router
 @app.post("/chat")
 async def generate_email(request: InputRquest):
     user_input = request.user_input
