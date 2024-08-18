@@ -47,10 +47,25 @@ from backend.evaluation.runnable import create_structured_qa_chain
 
 qa_chain = create_structured_qa_chain()
 print(f"Number of documents: {len(docs_list)}")
-results = []
-for doc in docs_list:
-    result = qa_chain.invoke(doc.page_content)
-    print(result)
-    results.append(result)
-
+results = qa_chain.batch([doc.page_content for doc in docs_list[:2]])
 print(f"Number of results: {len(results)}")
+
+from langsmith import Client
+
+client = Client()
+dataset_name = "qa_eval_clari"
+
+# Store the dataset
+dataset = client.create_dataset(
+    dataset_name=dataset_name,
+    description="QA pairs about Clari model.",
+)
+
+inputs = [{"question": result.question} for result in results]
+outputs = [{"answer": result.answer} for result in results]
+
+client.create_examples(
+    inputs=inputs,
+    outputs=outputs,
+    dataset_id=dataset.id,
+)
