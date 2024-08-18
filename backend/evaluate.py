@@ -1,5 +1,3 @@
-# Evaluation run utilities
-import os
 from langsmith import Client
 from langsmith.evaluation import evaluate, LangChainStringEvaluator
 from langsmith.schemas import Run, Example
@@ -32,9 +30,16 @@ DATASET_NAME = "qa_eval_clari"
 
 
 def get_copilot_response(inputs: dict) -> dict:
-    """Retrieve the copilot agent, feed it ground-truth question,
-    and get the response from it"""
-    from backend.agents import runnable
+    """Gets the copilot agent's response to the ground-truth question.
+
+    Args:
+        inputs (dict): A dictionary containing the question to be asked to the copilot agent.
+
+    Returns:
+        dict: A dictionary containing the response from the copilot agent.
+
+    """
+    from backend.agents import runnable  # import agent runnable
     from langchain_core.messages import HumanMessage
 
     question = inputs.get("question")
@@ -48,15 +53,16 @@ def get_copilot_response(inputs: dict) -> dict:
     return {"answer": response}
 
 
-# Evaluate the answers for the questions
-experiment_results = evaluate(
-    get_copilot_response,
-    data=DATASET_NAME,
-    evaluators=evaluators,
-    experiment_prefix="test-qa-eval-clari",
-    metadata={
-        "variant": "evaluate QA pairs for Clari model",
-    },
-)
+if __name__ == "__main__":
+    # Evaluate the answers for the questions
+    experiment_results = evaluate(
+        get_copilot_response,
+        data=DATASET_NAME,
+        evaluators=evaluators,
+        experiment_prefix="test-qa-eval-clari",
+        metadata={
+            "variant": "evaluate QA pairs for Clari model",
+        },
+    )
 
-experiment_results
+    experiment_results
