@@ -1,18 +1,16 @@
 import json
 import logging
-from typing import List
 
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
-from sqlmodel import Session, select
 
 from backend.agents import runnable
-from backend.database import get_session
-from backend.schema.evaluation import Evaluation, EvaluationCreate, EvaluationRead
+from backend.router.evaluation import router as evaluation_router
+from backend.router.chat import router as chat_router
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -30,80 +28,58 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-class InputRquest(BaseModel):
-    user_input: str
-
-
-# TODO: refactor these eval endpoints to router
-@app.post("/evaluations", response_model=EvaluationRead)
-def create_evaluation(
-    request: EvaluationCreate, session: Session = Depends(get_session)
-):
-    new_evaluation = Evaluation(**request.model_dump())
-    session.add(new_evaluation)
-    session.commit()
-    session.refresh(new_evaluation)
-    return new_evaluation
-
-
-@app.get("/evaluations")
-def read_evaluations(session: Session = Depends(get_session)):
-    evaluations = session.execute(select(Evaluation)).all()
-    # evaluations returned as a list of tuples, each tuple is (EvalutionResult, _),
-    # so we need to extract the EvaluationResult as the first element in the tuple
-    evaluations = [e[0].model_dump() for e in evaluations]
-    return evaluations
-
-
-# TODO: refactor these chat endpoints to router
-@app.post("/chat")
-async def generate_email(request: InputRquest):
-    user_input = request.user_input
-
-    if not user_input:
-        raise HTTPException(status_code=400, detail="Human input is required")
-
-    input_messages = {"messages": [HumanMessage(content=user_input)]}
-
-    async def event_stream():
-        stream_config = {}  # Add any specific configuration if needed
-        agent_name = ""
-
-        async for event in runnable.astream_events(
-            input=input_messages,
-            version="v1",
-            config=stream_config,
-        ):
-            # print("Event received:", event)  # Log the raw event
-            kind = event["event"]
-
-            if kind == "on_tool_end":
-                if event["name"] == "get_kb_docs":
-                    retrieved_docs = event["data"]["output"]
-                    response = [
-                        {"source": doc.metadata["source"], "chunk": doc.page_content}
-                        for doc in retrieved_docs
-                    ]
-                    yield f"data: {json.dumps({'type': 'on_tool_end', 'output': response})}\n\n"
-
-            if kind == "on_chain_end":
-                if event["name"] == "LangGraph":
-                    if event["data"]["output"]["agent"]["messages"]:
-                        output = event["data"]["output"]["agent"]["messages"][0].content
-                        print(">>>> AI answer:", output)
-                        yield f"data: {json.dumps({'type': 'on_chain_end', 'output': output})}\n\n"
-
-            if kind == "on_chat_model_stream":
-                content = event["data"]["chunk"].content
-                if content:
-                    yield f"data: {json.dumps({'type': 'stream', 'content': content, 'agent': agent_name})}\n\n"
-
-        print("Stream ended")
-        yield "data: [DONE]\n\n"
-
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
-
+# Include routers
+app.include_router(evaluation_router)
+app.include_router(chat_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+# Include the evaluation router
+# @app.post("/chat")
+# async def generate_email(request: InputRquest):
+#     user_input = request.user_input
+
+#     if not user_input:
+#         raise HTTPException(status_code=400, detail="Human input is required")
+
+#     input_messages = {"messages": [HumanMessage(content=user_input)]}
+
+#     async def event_stream():
+#         stream_config = {}  # Add any specific configuration if needed
+#         agent_name = ""
+
+#         async for event in runnable.astream_events(
+#             input=input_messages,
+#             version="v1",
+#             config=stream_config,
+#         ):
+#             # print("Event received:", event)  # Log the raw event
+#             kind = event["event"]
+
+#             if kind == "on_tool_end":
+#                 if event["name"] == "get_kb_docs":
+#                     retrieved_docs = event["data"]["output"]
+#                     response = [
+#                         {"source": doc.metadata["source"], "chunk": doc.page_content}
+#                         for doc in retrieved_docs
+#                     ]
+#                     yield f"data: {json.dumps({'type': 'on_tool_end', 'output': response})}\n\n"
+
+#             if kind == "on_chain_end":
+#                 if event["name"] == "LangGraph":
+#                     if event["data"]["output"]["agent"]["messages"]:
+#                         output = event["data"]["output"]["agent"]["messages"][0].content
+#                         print(">>>> AI answer:", output)
+#                         yield f"data: {json.dumps({'type': 'on_chain_end', 'output': output})}\n\n"
+
+#             if kind == "on_chat_model_stream":
+#                 content = event["data"]["chunk"].content
+#                 if content:
+#                     yield f"data: {json.dumps({'type': 'stream', 'content': content, 'agent': agent_name})}\n\n"
+
+#         print("Stream ended")
+#         yield "data: [DONE]\n\n"
+
+#     return StreamingResponse(event_stream(), media_type="text/event-stream")
