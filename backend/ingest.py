@@ -1,3 +1,4 @@
+import os
 from typing import Any, Dict, List
 
 from langchain.docstore.document import Document
@@ -10,7 +11,7 @@ from langsmith import Client
 from sqlmodel import Session, create_engine
 
 from data.train.source import urls
-from backend.config import COLLECTION_NAME, CONNECTION_STRING, OPENAI_EMBEDDING_MODEL
+from backend.config import COLLECTION_NAME, CONNECTION_STRING
 from backend.database import load_documents
 from backend.evaluation.chain import create_structured_qa_chain
 
@@ -68,7 +69,7 @@ def generate_embeddings(docs_list: List[Document]) -> BaseRetriever:
     doc_splits = split_documents(docs_list)
 
     # Specify embedding model
-    embedding = OpenAIEmbeddings(model=OPENAI_EMBEDDING_MODEL)
+    embedding = OpenAIEmbeddings(model=os.getenv("OPENAI_EMBEDDING_MODEL"))
 
     # Add to vectorDB
     vector_store = PGVector.from_documents(

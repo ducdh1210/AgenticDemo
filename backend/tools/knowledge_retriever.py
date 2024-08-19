@@ -1,16 +1,17 @@
+import os
 from langchain_openai import OpenAIEmbeddings
 from langchain_postgres.vectorstores import PGVector
 from langchain.tools import tool
 
-from backend.config import COLLECTION_NAME, CONNECTION_STRING, OPENAI_EMBEDDING_MODEL
+from backend.config import CONNECTION_STRING
 
 ########################
 #    Retriever tool    #
 ########################
 vector_store = PGVector(
-    embeddings=OpenAIEmbeddings(model=OPENAI_EMBEDDING_MODEL),
+    embeddings=OpenAIEmbeddings(model=os.getenv("OPENAI_EMBEDDING_MODEL")),
     connection=CONNECTION_STRING,
-    collection_name=COLLECTION_NAME,
+    collection_name=os.getenv("POSTGRESQL_PGVECTOR_COLLECTION"),
 )
 retriever = vector_store.as_retriever()
 

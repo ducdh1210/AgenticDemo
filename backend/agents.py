@@ -1,4 +1,4 @@
-from langchain_core.messages import HumanMessage
+import os
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage
 from langgraph.prebuilt import ToolNode
@@ -7,12 +7,11 @@ from langgraph.graph import END, START, StateGraph
 import operator
 from typing import Annotated, Sequence, TypedDict
 
-from backend.config import OPENAI_CHAT_MODEL
 from backend.tools.knowledge_retriever import get_kb_docs
 from backend.tools.pdf_entity_recognition import pdf_utility_bill_extraction
 
 # Set up model with tools
-llm = ChatOpenAI(model=OPENAI_CHAT_MODEL)
+llm = ChatOpenAI(model=os.getenv("OPENAI_CHAT_MODEL"))
 tools = [get_kb_docs, pdf_utility_bill_extraction]
 model = llm.bind_tools(tools)
 
