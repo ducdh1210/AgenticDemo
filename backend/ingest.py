@@ -9,6 +9,7 @@ from langchain_postgres.vectorstores import PGVector
 from langsmith import Client
 from sqlmodel import Session, create_engine
 
+from data.train.source import urls
 from backend.config import COLLECTION_NAME, CONNECTION_STRING, OPENAI_EMBEDDING_MODEL
 from backend.database import load_documents
 from backend.evaluation.chain import create_structured_qa_chain
@@ -168,15 +169,6 @@ def ingest(urls: List[str]) -> None:
 
 # Example usage
 if __name__ == "__main__":
-    urls = [
-        "https://www.clari.com/",
-        "https://www.clari.com/why-clari/",
-        "https://www.clari.com/products/revai/",
-        "https://www.clari.com/solutions/revenue-productivity/",
-        "https://www.clari.com/solutions/revenue-execution/",
-        "https://www.clari.com/solutions/revenue-orchestration/",
-        "https://www.clari.com/revenue-cadence/",
-    ]
     ingest(urls)
 
     # import argparse

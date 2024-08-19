@@ -17,8 +17,3 @@ CONNECTION_STRING = (
 # Set up OpenAI variables
 OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL")
 OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL")
-
-# Set up Langsmith variables
-# For some reason, the boolean value could not be read from the .env file
-LANGSMITH_TRACING_BOOL = True  # valid value: True or False
-os.environ["LANGCHAIN_TRACING_V2"] = "true" if LANGSMITH_TRACING_BOOL else "false"

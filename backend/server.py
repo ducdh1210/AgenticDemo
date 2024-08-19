@@ -33,6 +33,9 @@ app.include_router(evaluation_router)
 app.include_router(chat_router)
 
 if __name__ == "__main__":
+    import os
+
+    print("LANGCHAIN_TRACING_V2:", os.environ["LANGCHAIN_TRACING_V2"])
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
