@@ -3,6 +3,9 @@ from langsmith import Client
 from langsmith.evaluation import evaluate, LangChainStringEvaluator
 from langsmith.schemas import Run, Example
 from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
 
 # Initialize Langsmith client
 client = Client()

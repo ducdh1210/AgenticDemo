@@ -110,8 +110,8 @@ def store_evaluation_data(results: List[Dict[str, str]]) -> Any:
     Returns:
         Any: The created dataset object.
     """
+    dataset_name = os.getenv("EVALUATION_DATASET_NAME")
     client = Client()
-    dataset_name = "qa_eval_clari"
     datasets = client.list_datasets()
     matching_datasets = [
         dataset for dataset in datasets if dataset.name == dataset_name
@@ -119,7 +119,7 @@ def store_evaluation_data(results: List[Dict[str, str]]) -> Any:
     if len(matching_datasets) == 0:
         dataset = client.create_dataset(
             dataset_name=dataset_name,
-            description="QA pairs about Clari model.",
+            description=os.getenv("EVALUATION_DATASET_DESC"),
         )
     else:
         dataset = matching_datasets[0]
@@ -156,7 +156,7 @@ def ingest(urls: List[str]) -> None:
     docs_list = scrape_documents(urls)
 
     # Ingest documents to database
-    load_documents(session, docs_list)
+    load_documents(session=session, docs_list=docs_list, delete_existing=True)
 
     # Compute embeddings associated with new document chunks
     # and update vector store with the computed embeddings
