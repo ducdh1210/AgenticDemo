@@ -1,4 +1,5 @@
 import os
+import re
 from typing import Any, Dict, List
 
 from langchain.docstore.document import Document
@@ -31,7 +32,16 @@ def scrape_documents(urls: List[str]) -> List[Document]:
         List[Document]: A list of loaded documents.
     """
     docs = [WebBaseLoader(url).load() for url in urls]
+
+    # Flatten the list of lists into a single list
     docs_list = [item for sublist in docs for item in sublist]
+
+    for doc in docs_list:
+        # Remove newlines
+        doc.page_content = doc.page_content.replace("\n", "")
+        # Change tabs to spaces
+        doc.page_content = doc.page_content.replace("\t", " ")
+
     print(f"Number of documents: {len(docs_list)}")
 
     return docs_list

@@ -1,12 +1,12 @@
-.PHONY: ingest main server
+.PHONY: ingest evaluate server
 
 run-python-module = poetry run python -m backend.$(1)
 
 ingest:
 	$(call run-python-module,ingest)
 
-main: 
-	$(call run-python-module,main)
+evaluate: 
+	$(call run-python-module,evaluate)
 
 server: 
 	$(call run-python-module,server)

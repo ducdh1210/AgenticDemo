@@ -1,6 +1,6 @@
 # Create a new database
 
-[ ] Create a script for triggering an evaluation run
+[ ] Create a general answering prompt
 
 # Run migrations
 

@@ -13,7 +13,10 @@ vector_store = PGVector(
     connection=CONNECTION_STRING,
     collection_name=os.getenv("POSTGRESQL_PGVECTOR_COLLECTION"),
 )
-retriever = vector_store.as_retriever()
+retriever = vector_store.as_retriever(
+    search_type=os.getenv("RETRIEVER_SEARCH_TYPE"),
+    search_kwargs={"k": os.getenv("RETRIEVER_NUM_RESULTS")},
+)
 
 
 @tool
