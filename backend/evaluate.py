@@ -1,3 +1,4 @@
+import os
 from langsmith import Client
 from langsmith.evaluation import evaluate, LangChainStringEvaluator
 from langsmith.schemas import Run, Example
@@ -20,13 +21,11 @@ evaluators = [
     LangChainStringEvaluator(
         "cot_qa",
         config={
-            "llm": ChatOpenAI(model="gpt-4o-mini"),
+            "llm": ChatOpenAI(model=os.getenv("EVALUATION_MODEL")),
         },
     ),
     # evaluate_length,
 ]
-
-DATASET_NAME = "qa_eval_clari"
 
 
 def get_copilot_response(inputs: dict) -> dict:
@@ -57,10 +56,7 @@ if __name__ == "__main__":
     # Evaluate the answers for the questions
     experiment_results = evaluate(
         get_copilot_response,
-        data=DATASET_NAME,
+        data=os.getenv("EVALUATION_DATASET_NAME"),
         evaluators=evaluators,
-        experiment_prefix="test-qa-eval-clari",
-        metadata={
-            "variant": "evaluate QA pairs for Clari model",
-        },
+        experiment_prefix=os.getenv("EVALUATION_EXPERIMENT_PREFIX"),
     )
