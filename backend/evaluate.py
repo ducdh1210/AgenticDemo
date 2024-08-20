@@ -41,12 +41,10 @@ def get_copilot_response(inputs: dict) -> dict:
         dict: A dictionary containing the response from the copilot agent.
 
     """
-    from backend.agents import runnable  # import agent runnable
+    from backend.agents import runnable, initialize_messages  # import agent runnable
     from langchain_core.messages import HumanMessage
 
-    question = inputs.get("question")
-
-    input_messages = {"messages": [HumanMessage(content=question)]}
+    input_messages = initialize_messages(user_input=inputs.get("question"))
     result = runnable.invoke(input=input_messages)
     if result["messages"][-1].content:
         response = result["messages"][-1].content

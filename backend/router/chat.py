@@ -6,10 +6,10 @@ import json
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel
 
-from backend.agents import runnable
+from backend.agents import runnable, initialize_messages
 
 
 class InputRquest(BaseModel):
@@ -29,7 +29,7 @@ async def generate_email(request: InputRquest):
     if not user_input:
         raise HTTPException(status_code=400, detail="Human input is required")
 
-    input_messages = {"messages": [HumanMessage(content=user_input)]}
+    input_messages = initialize_messages(user_input)
 
     async def event_stream():
         stream_config = {}  # Add any specific configuration if needed

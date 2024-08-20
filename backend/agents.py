@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage
 from langgraph.prebuilt import ToolNode
 from langgraph.graph import END, START, StateGraph
-
+from langchain_core.messages import SystemMessage, HumanMessage
 import operator
 from typing import Annotated, Sequence, TypedDict
 
@@ -13,7 +13,25 @@ from backend.tools.pdf_entity_recognition import pdf_utility_bill_extraction
 # Set up model with tools
 llm = ChatOpenAI(model=os.getenv("OPENAI_CHAT_MODEL"))
 tools = [get_kb_docs, pdf_utility_bill_extraction]
+
+
 model = llm.bind_tools(tools)
+# system_msg = """
+#     You are a helpful AI assistant that can answer questions by looking up documents and can also perform entity recognition on PDFs.
+#     """
+system_msg = """
+    You are a helpful AI assistant that can answer questions by looking up knowledge documents and can also perform entity recognition on PDFs.
+    However, if the question  has the word "purpose" in it, you should always answer "I don't know" no matter what.
+"""
+
+
+def initialize_messages(user_input: str) -> dict:
+    return {
+        "messages": [
+            SystemMessage(content=system_msg),
+            HumanMessage(content=user_input),
+        ]
+    }
 
 
 # Define agent state
