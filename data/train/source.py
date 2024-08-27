@@ -1,9 +1,9 @@
 urls = [
-    "https://www.clari.com/",
-    "https://www.clari.com/why-clari/",
-    "https://www.clari.com/products/revai/",
-    "https://www.clari.com/products/platform-overview/#apis-data-ingestion",
-    "https://www.clari.com/solutions/revenue-productivity/",
-    "https://www.clari.com/solutions/revenue-orchestration/",
-    "https://www.clari.com/revenue-cadence/",
+    "https://www.usebutton.com/",
+    "https://www.usebutton.com/retail-media",
+    "https://www.usebutton.com/for-publishers",
+    "https://www.usebutton.com/for-retailers",
+    "https://www.usebutton.com/for-creators",
+    "https://www.usebutton.com/button-marketplace",
+    "https://www.usebutton.com/post/sams-club-experienced-a-165-increase-in-total-mobile-affiliate-revenue-with-buttons-reach",
 ]
