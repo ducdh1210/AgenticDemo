@@ -8,6 +8,11 @@ from alembic import context
 # Important: import the models here to ensure they are registered with SQLModel
 from backend.schema.document import Document
 from backend.schema.evaluation import Evaluation
+from backend.schema.recommendation import User, Item, PurchaseHistory, SearchQuery
+# from backend.schema.user import User
+# from backend.schema.item import Item
+# from backend.schema.purchase import PurchaseHistory
+# from backend.schema.query import SearchQuery
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
