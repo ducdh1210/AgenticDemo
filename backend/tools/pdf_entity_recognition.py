@@ -208,7 +208,7 @@ class UtilityBillSchema(BaseModel):
 
 
 @tool
-def pdf_utility_bill_extraction() -> pd.DataFrame:
+def pdf_utility_bill_extraction(data_dir: str) -> pd.DataFrame:
     """
     Run utility bill extraction on the PDF file.
     """
@@ -236,6 +236,7 @@ def pdf_utility_bill_extraction() -> pd.DataFrame:
 
     # Load the PDF files
     loaded_docs = load_pdf_files(os.getenv("DATA_DIR"))
+    # loaded_docs = load_pdf_files("/Users/ducdo/Repo/Demo/data/live")
 
     # Prepare the batch input
     batch_input = [{"text": doc.page_content} for doc in loaded_docs]
