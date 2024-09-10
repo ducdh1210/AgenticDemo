@@ -1,7 +1,5 @@
 # Introduction
 
-# Backend for AI Agent Proof of Concept
-
 This project showcases the core components of an AI agent system. The backend is designed to answer user questions, identify entities in PDF files, and build a knowledge base by collecting data from the internet and generating knowledge embeddings from scraped web pages.
 
 ## Technology Stack
