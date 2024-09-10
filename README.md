@@ -41,14 +41,9 @@ data
 ```
 
 ```
-# source.py
+# python `source.py`
 urls = [
-    "https://XYZ.com/",
-]
-```
-
-```python
-urls = [
+    "https://ABC.com/",
     "https://XYZ.com/",
 ]
 ```
