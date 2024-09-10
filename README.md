@@ -4,10 +4,6 @@ This is the backend of a POC AI agent project. It handles different types of use
 
 # Setup (local development)
 
-### Setup
-
-To set up the project, follow these steps:
-
 #### Install Dependencies
 
 Install `poetry` first ([doc](https://python-poetry.org/docs/))
