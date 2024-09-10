@@ -1,6 +1,10 @@
 # Introduction
 
-This is the backend of a POC AI agent project. It handles different types of user requests, such as answering questions or identifying entities in PDF files. It also collects data from the internet, generates knowledge embeddings, and uses a Large Language Model (LLM) for question-answer capabilities. The web app is built using FastAPI and relies on a PostgreSQL database with pgvector for managing and querying embeddings.
+This is the backend of a POC AI agent project. It handles different types of user requests, such as answering questions or identifying entities in PDF files.
+
+To build the knowledge base, the service collects data from the internet, generates knowledge embeddings.
+
+The web app is built using FastAPI and relies on a `PostgreSQL` database with `pgvector`extension for storing embeddings and metadata. It leverages `openAI API` for the LLM, `langchain`/`langgraph` for application orchestration, and`langsmith` for LLM tracing and evaluation.
 
 # Setup (local development)
 
@@ -18,17 +22,9 @@ make setup
 
 See [run migrations](#run-migrations)
 
-#### Create Embeddings
-
-Generate the necessary embeddings for your application
-
-```bash
-make create_embeddings
-```
-
 #### Ingest Data
 
-IMPORTANT: create a new folder `data/train` and put the data you want to train the model in `data/train/source.py`.
+IMPORTANT: create a new folder `data/train` and specify the the knowledge sources, which are web urls, in `data/train/source.py`.
 
 ```bash
 data
@@ -44,11 +40,13 @@ urls = [
 ]
 ```
 
-If you want to run the ingestion process that depends on creating embeddings and seeding data, execute:
+Run the ingestion process, including scraping the webs, chunking the scrapted text, creating embeddings for the chunks and storing them in the database.
 
 ```bash
 make ingest
 ```
+
+Check the database to see if the data is ingested correctly.
 
 #### Start the Server
 
@@ -74,6 +72,13 @@ curl -X 'GET' \
   -d '{
   "user_input": "<question here>"
 }'
+```
+
+Examples of questions for user input:
+
+```
+"tell me about XYZ?"
+"extract entities of the PDFs in folder /data/live/?"
 ```
 
 # Setup (docker) -- TODO

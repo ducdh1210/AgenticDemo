@@ -15,7 +15,9 @@ create_embeddings:
 seed_data:
 	$(call run-scripts,seed_data)
 
-ingest: create_embeddings seed_data
+ingest: create_embeddings 
+
+ingest-with-seed: create_embeddings seed_data
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
