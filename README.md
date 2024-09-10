@@ -1,10 +1,20 @@
 # Introduction
 
-This is the backend of a POC AI agent project. It handles different types of user requests, such as answering questions or identifying entities in PDF files.
+# Backend for AI Agent Proof of Concept
 
-To build the knowledge base, the service collects data from the internet, generates knowledge embeddings.
+This project showcases the core components of an AI agent system. The backend is designed to answer user questions, identify entities in PDF files, and build a knowledge base by collecting data from the internet and generating knowledge embeddings from scraped web pages.
 
-The web app is built using FastAPI and relies on a `PostgreSQL` database with `pgvector`extension for storing embeddings and metadata. It leverages `openAI API` for the LLM, `langchain`/`langgraph` for application orchestration, and`langsmith` for LLM tracing and evaluation.
+## Technology Stack
+
+- **Web Framework**: FastAPI
+- **Database**: PostgreSQL with pgvector extension
+  - Stores embeddings and metadata
+- **AI/ML Components**:
+  - OpenAI API for Language Model
+  - Langchain/Langgraph for application orchestration
+  - Langsmith for LLM tracing and evaluation
+
+This backend demonstrates how these technologies can be integrated to create a functional AI agent system.
 
 # Setup (local development)
 
