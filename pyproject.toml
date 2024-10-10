@@ -37,6 +37,7 @@ pikepdf = "8.13.0"
 pdfminer-six = "^20240706"
 chromadb = "^0.5.12"
 backports-lzma = "^0.0.14"
+lxml = "^5.3.0"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"

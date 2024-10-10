@@ -115,3 +115,6 @@ migrations/versions/*
 
 # data
 data/*
+
+# pickle
+*.pkl
