@@ -8,22 +8,16 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
 openai = "^1.33.0"
-langchain = "^0.2.3"
 python-dotenv = "^1.0.1"
-langchain-openai = "^0.1.8"
 pypdf = "4.0.1"
-langgraph = "^0.0.66"
 pygraphviz = "^1.13"
 fastapi = "^0.111.0"
-langchain-postgres = "^0.0.9"
-langchain-community = "^0.2.10"
 beautifulsoup4 = "^4.12.3"
 pandas = "^2.2.2"
 sqlmodel = "^0.0.21"
 alembic = "^1.13.2"
 torch = [
     { url = "https://download.pytorch.org/whl/cpu/torch-2.2.2-cp311-none-macosx_10_9_x86_64.whl", markers = "sys_platform == 'darwin'"},
-
 ]
 unstructured-client="0.16.0"
 unstructured="0.12.3"
@@ -38,6 +32,15 @@ pdfminer-six = "^20240706"
 chromadb = "^0.5.12"
 backports-lzma = "^0.0.14"
 lxml = "^5.3.0"
+pinecone = "^5.3.1"
+langgraph = "^0.2.35"
+langchain = "^0.3.3"
+langchain-openai = "^0.2.2"
+langchain-pinecone = "^0.2.0"
+pgvector = ">=0.2.5,<0.3.0"
+langchain-postgres = "^0.0.12"
+langchain-community = "^0.3.2"
+psycopg2 = "^2.9.10"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"

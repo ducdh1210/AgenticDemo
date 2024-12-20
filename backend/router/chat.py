@@ -45,11 +45,17 @@ async def generate_email(request: InputRquest):
 
             if kind == "on_tool_end":
                 if event["name"] == "get_kb_docs":
-                    retrieved_docs = event["data"]["output"]
-                    response = [
-                        {"source": doc.metadata["source"], "chunk": doc.page_content}
-                        for doc in retrieved_docs
-                    ]
+                    # try:
+                    #     retrieved_docs = event["data"]["output"]
+                    #     response = [
+                    #         {
+                    #             "source": doc.metadata["source"],
+                    #             "chunk": doc.page_content,
+                    #         }
+                    #         for doc in retrieved_docs
+                    #     ]
+                    # except Exception as e:
+                    response = eval(event["data"]["output"].content)
                     yield f"data: {json.dumps({'type': 'on_tool_end', 'output': response})}\n\n"
 
             if kind == "on_chain_end":

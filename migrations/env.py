@@ -9,8 +9,9 @@ from alembic import context
 from backend.schema.document import Document
 from backend.schema.evaluation import Evaluation
 from backend.schema.recommendation import User, Item, PurchaseHistory, SearchQuery
+
 # from backend.schema.user import User
-# from backend.schema.item import Item
+from backend.schema.foo import Foo
 # from backend.schema.purchase import PurchaseHistory
 # from backend.schema.query import SearchQuery
 
